@@ -1,11 +1,13 @@
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 import "dotenv/config.js";
 import { router as employeeRouter } from "./routes/employee.route.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/dealsday";
+const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3001";
 
 mongoose
   .connect(MONGO_URI)
@@ -19,9 +21,15 @@ mongoose
     console.log(err);
   });
 
-const router = express.Router();
+app.use(
+  cors({
+    origin: CLIENT_URL,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
+const router = express.Router();
 
 app.use("/api/v1", router);
 
