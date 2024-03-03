@@ -17,7 +17,7 @@ const CheckboxGroup = ({ label, item, setItem, options }) => {
               className="form-checkbox text-indigo-600"
               name={option}
               value={option}
-              checked={item === option}
+              checked={item?.toUpperCase() === option?.toUpperCase()}
               onChange={() => setItem(option)}
             />
             <span className="ml-2">{option}</span>

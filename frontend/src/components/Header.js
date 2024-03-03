@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
-import { Navigate, useNavigate, Link } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import { userAtom } from "../utils/atoms";
+import React, { useEffect, useState } from "react";
+import { Navigate, useNavigate, Link, useLocation } from "react-router-dom";
 import Button from "./Button";
 
 const Header = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useRecoilState(userAtom);
+  const location = useLocation();
+  const pathname = location.pathname;
+  const [user, setUser] = useState(null);
   const token = localStorage.getItem("token");
   useEffect(() => {
     async function fetchUser() {
@@ -44,14 +44,22 @@ const Header = () => {
         </Link>
         <Link
           to="/dashboard"
-          className="py-4 hover:text-blue-700 hover:underline"
+          className={
+            "py-4 hover:text-blue-700 hover:underline" +
+            (pathname.includes("dashboard") ? "text-blue-700 underline" : "")
+          }
         >
           Home
         </Link>
 
         <Link
           to="/employee-list"
-          className="py-4  hover:text-blue-700 hover:underline"
+          className={
+            "py-4 hover:text-blue-700 hover:underline" +
+            (pathname.includes("employee-list")
+              ? "text-blue-700 underline"
+              : "")
+          }
         >
           Employee List
         </Link>

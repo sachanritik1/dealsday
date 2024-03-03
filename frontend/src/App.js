@@ -4,6 +4,7 @@ import Login from "./pages/Login.js";
 import Register from "./pages/Register.js";
 import Dashboard from "./pages/Dashboard.js";
 import EmployeeList from "./pages/EmployeeList.js";
+import Employee from "./pages/Employee.js";
 import Header from "./components/Header.js";
 import { RecoilRoot } from "recoil";
 
@@ -31,6 +32,16 @@ function App() {
               <>
                 <Header />
                 <EmployeeList />
+              </>
+            }
+          />
+          <Route
+            exact
+            path="/employee/:id"
+            element={
+              <>
+                <Header />
+                <Employee />
               </>
             }
           />

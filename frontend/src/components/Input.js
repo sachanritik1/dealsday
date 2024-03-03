@@ -10,7 +10,6 @@ const Input = ({ label, type, placeholder, reference }) => {
         {label}
       </label>
       <input
-        required
         type={type}
         name={label}
         id={label}
