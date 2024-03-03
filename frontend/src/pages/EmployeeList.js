@@ -9,7 +9,7 @@ const EmployeeTable = () => {
   const [sortKey, setSortKey] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
-  const limit = 7;
+  const limit = 6;
 
   useEffect(() => {
     const fetchData = async () => {
