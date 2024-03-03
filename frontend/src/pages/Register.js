@@ -1,44 +1,65 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
-  const nameRef = React.useRef(null);
-  const emailRef = React.useRef(null);
+  const usernameRef = React.useRef(null);
   const passwordRef = React.useRef(null);
   const confirmPasswordRef = React.useRef(null);
-  const phoneRef = React.useRef(null);
 
-  const handleFormSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const name = nameRef.current.value;
-    const email = emailRef.current.value;
+
+    const username = usernameRef.current.value;
     const password = passwordRef.current.value;
     const confirmPassword = confirmPasswordRef.current.value;
-    const phone = phoneRef.current.value;
 
     if (password !== confirmPassword) {
       return alert("Passwords do not match");
     }
 
-    fetch("/api/employees/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, email, password, phone }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.error) {
-          alert(data.error);
-        } else {
-          alert("Registration successful");
+    if (password.length < 8) {
+      return alert("Password must be at least 8 characters long");
+    }
+    if (!/\d/.test(password)) {
+      return alert("Password must contain a number");
+    }
+    if (!/[!@#$%^&*]/.test(password)) {
+      return alert("Password must contain a special character");
+    }
+
+    try {
+      const res = await fetch(
+        process.env.REACT_APP_API_URL + "/user/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
         }
-      })
-      .catch((err) => console.log(err));
+      );
+
+      const json = await res.json();
+      if (json.success) {
+        navigate("/login");
+      } else {
+        alert(json.message);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, []);
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-200">
@@ -46,38 +67,26 @@ const Register = () => {
         <h2 className="text-3xl font-bold mb-10 text-gray-800">Register</h2>
         <form onSubmit={handleFormSubmit}>
           <Input
-            label="Name"
+            label="Username"
             type="text"
-            placeholder="John Doe"
-            ref={nameRef}
-          />
-          <Input
-            label="Email"
-            type="email"
-            placeholder="johndoe@xyz.com"
-            ref={emailRef}
+            placeholder="johndoe123"
+            reference={usernameRef}
           />
 
           <Input
             label="Password"
             type="password"
             placeholder="********"
-            ref={passwordRef}
+            reference={passwordRef}
           />
 
           <Input
             label="Confirm Password"
             type="password"
             placeholder="********"
-            ref={confirmPasswordRef}
+            reference={confirmPasswordRef}
           />
 
-          <Input
-            label="Phone Number"
-            type="text"
-            placeholder="1234567890"
-            ref={phoneRef}
-          />
           <Button label="Register" type="submit" />
         </form>
         <p className="mt-5 text-center">

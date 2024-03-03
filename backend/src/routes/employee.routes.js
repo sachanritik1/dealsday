@@ -1,18 +1,17 @@
 import express from "express";
+import { upload } from "../middlewares/multer.middleware.js";
+import { verifyJWT } from "../middlewares/jwt.middleware.js";
 import {
-  createEmployee,
-  loginEmployee,
   getAllEmployees,
+  createEmployee,
   getEmployeeById,
   updateEmployee,
   deleteEmployee,
 } from "../controllers/employee.controller.js";
-import { upload } from "../middlewares/multer.middleware.js";
-
 const router = express.Router();
 
-router.route("/register").post(upload.single("image"), createEmployee);
-router.route("/login").post(loginEmployee);
+router.use(verifyJWT);
+router.route("/create").post(upload.single("image"), createEmployee);
 router.route("/").get(getAllEmployees);
 router
   .route("/:id")

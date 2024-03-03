@@ -17,15 +17,7 @@ export const uploadOnCloudinary = async (localFilePath) => {
       "File uploaded on cloudinary successfully",
       response.secure_url
     );
-    const result = {
-      url: response.secure_url,
-      publicId: response.public_id,
-      duration: undefined,
-    };
-    if (response.resource_type === "video") {
-      result.duration = response.duration;
-    }
-    return result;
+    return response;
   } catch (err) {
     console.log("File upload on cloudinary failed" + err);
   } finally {
