@@ -6,7 +6,50 @@ const EmployeeTable = () => {
   const [employees, setEmployees] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 2;
+  const [sortKey, setSortKey] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const limit = 10;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          process.env.REACT_APP_API_URL +
+            `/employee?page=${currentPage}&limit=${limit}&sort=${sortKey}&order=${sortOrder}&search=${searchQuery}`,
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          }
+        );
+        const data = await response.json();
+        setEmployees(data?.employees);
+        setTotalPages(Math.ceil(data?.totalCount / limit));
+      } catch (error) {
+        console.error("Error fetching employee data:", error);
+      }
+    };
+
+    fetchData();
+  }, [currentPage, sortKey, sortOrder, searchQuery]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
 
   const handleDeleteEmployee = async (id) => {
     try {
@@ -29,52 +72,52 @@ const EmployeeTable = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          process.env.REACT_APP_API_URL +
-            `/employee?page=${currentPage}&limit=${limit}`,
-          {
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-          }
-        );
-        const data = await response.json();
-        setEmployees(data?.employees);
-        setTotalPages(Math.ceil(data?.totalCount / limit));
-      } catch (error) {
-        console.error("Error fetching employee data:", error);
-      }
-    };
-
-    fetchData();
-  }, [currentPage]);
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
   return (
     <div className="p-2 my-2">
+      <div className="flex gap-4">
+        <input
+          type="text"
+          placeholder="Search by name or email"
+          value={searchQuery}
+          onChange={handleSearch}
+          className="p-2 mb-2 border border-gray-300 rounded-md"
+        />
+        <button
+          onClick={() => setSearchQuery("")}
+          className="p-2 mb-2 border border-gray-300 bg-slate-700 text-white rounded-md"
+        >
+          Clear
+        </button>
+      </div>
       <div className="flex my-2 justify-center">
         <p className="font-bold text-3xl">Employee List</p>
       </div>
       <table className="min-w-full divide-y divide-gray-200">
         <thead>
           <tr>
-            <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-              Unique Id
+            <th
+              onClick={() => handleSort("id")}
+              className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+            >
+              Unique Id{" "}
+              {sortKey === "id" ? (sortOrder === "asc" ? "▲" : "▼") : "▲▼"}
             </th>
             <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
               Image
             </th>
-            <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-              Name
+            <th
+              onClick={() => handleSort("name")}
+              className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+            >
+              Name{" "}
+              {sortKey === "name" ? (sortOrder === "asc" ? "▲" : "▼") : "▲▼"}
             </th>
-            <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-              Email
+            <th
+              onClick={() => handleSort("email")}
+              className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+            >
+              Email{" "}
+              {sortKey === "email" ? (sortOrder === "asc" ? "▲" : "▼") : "▲▼"}
             </th>
             <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
               Mobile No
@@ -88,8 +131,16 @@ const EmployeeTable = () => {
             <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
               Course
             </th>
-            <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-              Create Date
+            <th
+              onClick={() => handleSort("createdAt")}
+              className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+            >
+              Create Date{" "}
+              {sortKey === "createdAt"
+                ? sortOrder === "asc"
+                  ? "▲"
+                  : "▼"
+                : "▲▼"}
             </th>
             <th className="px-6 py-3 bg-gray-50"></th>
           </tr>

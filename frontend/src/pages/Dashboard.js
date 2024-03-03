@@ -43,6 +43,8 @@ const Dashboard = () => {
         setCourse(null);
         setImage(null);
         alert("Employee created successfully");
+      } else {
+        alert(json.message);
       }
     } catch (err) {
       console.error(err);

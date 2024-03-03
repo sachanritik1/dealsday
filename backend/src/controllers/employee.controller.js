@@ -4,11 +4,23 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 export const getAllEmployees = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
+  const sort = req.query.sort || "id";
+  const order = req.query.order || "asc";
+  const search = req.query.search || "";
+
+  const query = {
+    $or: [
+      { name: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+    ],
+  };
+
   try {
-    const totalCount = await Employee.countDocuments();
-    const employees = await Employee.find()
-      .skip((page - 1) * limit)
-      .limit(limit);
+    const totalCount = await Employee.countDocuments(query);
+    const employees = await Employee.find(query)
+      .sort({ [sort]: order })
+      .limit(limit)
+      .skip(limit * (page - 1));
 
     res.json({ success: true, employees, totalCount });
   } catch (err) {
@@ -16,11 +28,12 @@ export const getAllEmployees = async (req, res) => {
   }
 };
 export const createEmployee = async (req, res) => {
+  const localFilePath = req.file.path;
   try {
-    console.log(req.userId);
-    console.log(req.file);
-    const result = await uploadOnCloudinary(req.file.path);
-    console.log(" ----- " + result.secure_url);
+    if (!localFilePath.includes("png") && !localFilePath.includes("jpg")) {
+      throw new Error("Invalid Image format");
+    }
+    const result = await uploadOnCloudinary(localFilePath);
     const employee = await Employee.create({
       name: req.body.name,
       email: req.body.email,
@@ -70,7 +83,11 @@ export const updateEmployee = async (req, res) => {
       obj.course = req.body.course.toUpperCase();
     }
     if (req.file) {
-      const result = await uploadOnCloudinary(req.file.path);
+      const localFilePath = req.file.path;
+      if (!localFilePath.includes("png") && !localFilePath.includes("jpg")) {
+        throw new Error("Invalid Image format");
+      }
+      const result = await uploadOnCloudinary(localFilePath);
       obj.image = result.secure_url;
     }
     const employee = await Employee.findByIdAndUpdate(req.params.id, obj);
